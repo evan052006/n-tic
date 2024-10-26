@@ -1,5 +1,3 @@
-
-
 class Game {
     constructor(height, width, consecutiveMarksToWin) {
         this.height = height;
@@ -7,15 +5,42 @@ class Game {
         this.consecutiveMarksToWin = consecutiveMarksToWin;
         this.player1 = 'X';
         this.player2 = 'O';
-        let emptyGrid = [];
-        for (let i = 0; i < height; i++){
-            emptyGrid[i] = [];
-            for (let j = 0; j < width; j++){
-                emptyGrid[i][j] = "";
-            }
-        }
-        this.grid = emptyGrid;
+        this.buildBoard();
     }
+
+    buildBoard(){
+        const board = document.createElement('div');
+        board.classList.add('board');
+        board.style.gridTemplateColumns = `repeat(${this.width}, 1fr`;
+        board.style.gridTemplateRows = `repeat(${this.height}, 1fr`;
+        const cellObserver = new ResizeObserver(entries => {
+            entries.forEach(entry => {
+                const cellSize = entry.contentRect.width;
+                entry.target.style.fontSize = `${cellSize * 0.75}px`; 
+                if (cellSize > 50) {
+                    board.style.maxWidth = `${50 * this.width}px`;
+                }
+            });
+        });
+
+        let grid = [];
+        for (let i = 0; i < this.height; i++) {
+            grid[i] = [];
+            for (let j = 0; j < this.width; j++){
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cellObserver.observe(cell);
+                board.appendChild(cell);
+                grid[i][j] = cell;
+            }   
+        }
+
+
+        document.body.appendChild(board);
+        this.boardElement = board;
+        this.grid = grid;
+    }
+
 
     checkWin(lastPlayerSymbol, lastPosition){
         const shiftHorizontal = (position, distance) => ({x: position.x + distance, y: position.y});
@@ -30,9 +55,9 @@ class Game {
     }
 
     checkConsecutiveMarks(symbol, position, shift){
-        let currentConsecutive = 1
-        let right = shift(position, 1)
-        let left = shift(position, -1)
+        let currentConsecutive = 1;
+        let right = shift(position, 1);
+        let left = shift(position, -1);
         while (true){
             const validRight = this.inBounds(right) && this.getCell(right) == symbol;
             const validLeft = this.inBounds(left) && this.getCell(left) == symbol;
@@ -56,8 +81,15 @@ class Game {
     }
 
     getCell(position){
-        return this.grid[position.y][position.x];
+        return this.grid[position.y][position.x].innerHTML;
+    }
+
+    updateCell(position, symbol){
+        this.grid[position.y][position.x].innerHTML = symbol;
     }
 }
  
-
+const game = new Game(25, 25, 3);
+for (let i = 0; i < game.width; i++){
+    game.updateCell({x: i, y: i}, 'O');
+}
