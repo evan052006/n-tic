@@ -7,9 +7,10 @@ class Game {
         this.playerCount = 2;
         this.round = 0;
         this.buildBoard();
-        this.currentTurnBar = document.querySelector('#currentPlayer');
+        this.currentTurnBar = document.createElement('h1');
         this.currentTurnBar.innerHTML = this.players[0];
-        this.gameEnd = false;
+        document.body.appendChild(this.currentTurnBar);
+        this.gameState = 'running';
     }
     
     buildBoard(){
@@ -49,19 +50,20 @@ class Game {
 
     cellClicked(event){
         const cell = event.target;
-        if (!this.gameEnd && cell.classList.contains('cell') && !this.isEmptyOrSameSymbol(cell)){ // means empty
+        if (this.gameState == 'running' && cell.classList.contains('cell') && !this.isEmptyOrSameSymbol(cell)){ // means empty
             this.advanceGame(cell);
         }
     }
 
     advanceGame(updatedCell){
         const lastPosition = {x: parseInt(updatedCell.dataset.x, 10), y: parseInt(updatedCell.dataset.y, 10)};
-        console.log(lastPosition);
         updatedCell.innerHTML = this.currentTurnBar.innerHTML;
         const enoughRounds = this.round >= this.playerCount * (this.consecutiveMarksToWin - 1);
         if (enoughRounds && this.checkWin(this.currentTurnBar.innerHTML, lastPosition)){
-            alert('WIN :>');
-            this.gameEnd = true;
+            this.gameState = `${this.currentTurnBar} WINS :>`;
+        }
+        else if (this.round >= this.width * this.height) {
+            this.gameState = 'Draw :/';
         }
         this.round++;
         this.currentTurnBar.innerHTML = this.players[this.round % this.playerCount];
@@ -70,37 +72,46 @@ class Game {
 
     checkWin(lastPlayerSymbol, lastPosition){
 
-        const shiftHorizontal = (position, distance) => ({x: position.x + distance, y: position.y});
-        const shiftVertical = (position, distance) => ({x: position.x, y: position.y + distance});
-        const shiftDiagonalUp = (position, distance) => ({x: position.x + distance, y: position.y - distance});
-        const shiftDiagonalDown = (position, distance) => ({x: position.x + distance, y: position.y + distance});
-        const checkHorizontal = this.checkConsecutiveMarks(lastPlayerSymbol, lastPosition, shiftHorizontal);
-        const checkVertical = this.checkConsecutiveMarks(lastPlayerSymbol, lastPosition, shiftVertical);
-        const checkDiagonalUp = this.checkConsecutiveMarks(lastPlayerSymbol, lastPosition, shiftDiagonalUp);
-        const checkDiagonalDown = this.checkConsecutiveMarks(lastPlayerSymbol, lastPosition, shiftDiagonalDown);
-        return checkHorizontal || checkVertical || checkDiagonalUp || checkDiagonalDown;
+        let shiftFunctions = [];
+        shiftFunctions[0] = (position, distance) => ({x: position.x + distance, y: position.y});
+        shiftFunctions[1] = (position, distance) => ({x: position.x, y: position.y + distance});
+        shiftFunctions[2] = (position, distance) => ({x: position.x + distance, y: position.y - distance});
+        shiftFunctions[3] = (position, distance) => ({x: position.x + distance, y: position.y + distance});
+        for (let i = 0; i < 4; i++){
+            const consecutive = this.getConsecutiveCells(lastPlayerSymbol, lastPosition, shiftFunctions[i]);
+            console.log(consecutive);
+            if (consecutive.length >= this.consecutiveMarksToWin){
+                for (let j = 0; j < consecutive.length; j++){
+                    consecutive[j].classList.add('winningCell');
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
-    checkConsecutiveMarks(symbol, position, shift){
-        let currentConsecutive = 1;
+    getConsecutiveCells(symbol, position, shift){
+        let consecutive = [];
         let right = shift(position, 1);
         let left = shift(position, -1);
+        consecutive.push(this.getCellElement(position));
+
         while (true){
             const validRight = this.inBounds(right) && this.getCell(right) == symbol;
             const validLeft = this.inBounds(left) && this.getCell(left) == symbol;
             if (validRight){
+                consecutive.push(this.getCellElement(right));
                 right = shift(right, 1);
-                currentConsecutive++;
             }
             if (validLeft){
+                consecutive.push(this.getCellElement(left));
                 left = shift(left, -1)
-                currentConsecutive++;
             }
             if (!validLeft && !validRight){
                 break;
             }
         }
-        return this.consecutiveMarksToWin <= currentConsecutive;
+        return consecutive;
     }
 
     inBounds(position){
@@ -109,6 +120,10 @@ class Game {
 
     getCell(position){
         return this.grid[position.y][position.x].innerHTML;
+    }
+
+    getCellElement(position){
+        return this.grid[position.y][position.x];
     }
 
     isEmptyOrSameSymbol(cell){
