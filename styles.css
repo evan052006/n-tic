@@ -1,16 +1,53 @@
+body {
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+button {
+    padding: 2vw;
+    font-size: 2vw;
+    user-select: none;
+}
+
+input {
+    width: 9em;
+    height: 2em;
+    font-size: 1em;
+    text-align: center;
+}
+
+.button {
+    margin-top: 2vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputs {
+    margin-top: 3vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .board {
     display: grid;
     margin: auto;
     max-width: 80%;
-    
 }
 
+.currentTurnBar {
+    display: flex;
+    font-size: 4vw;
+    margin-top: 3vw;
+    margin-bottom: 1vw;
+    user-select: none;
+    color: black;
+    justify-content: center;
+}
 
 .cell {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
-    transition: background-color 0.1s ease;
+    user-select: none;
+    transition: background-color 0.1s ease, opacity 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -26,6 +63,10 @@
 .cell:hover:not(:empty):not(.winningCell){
     background-color: lightgrey;
 }   
+
+.stop-hover {
+    pointer-events: none;
+}
 
 .winningCell {
     background-color: rgb(229, 240, 83);

@@ -1,15 +1,16 @@
 class Game {
-    constructor(height, width, consecutiveMarksToWin) {
+    constructor(height, width, consecutiveMarksToWin, players) {
         this.height = height;
         this.width = width;
         this.consecutiveMarksToWin = consecutiveMarksToWin;
-        this.players = ['X', 'O'];
-        this.playerCount = 2;
+        this.players = players;
+        this.playerCount = this.players.length;
         this.round = 0;
-        this.buildBoard();
-        this.currentTurnBar = document.createElement('h1');
+        this.currentTurnBar = document.createElement('div');
+        this.currentTurnBar.classList.add('currentTurnBar');
         this.currentTurnBar.innerHTML = this.players[0];
         document.body.appendChild(this.currentTurnBar);
+        this.buildBoard();
         this.gameState = 'running';
     }
     
@@ -48,26 +49,37 @@ class Game {
         this.grid = grid;
     }
 
+    boardWipe(){
+        this.boardElement.remove();
+        this.currentTurnBar.remove();
+    }
+
     cellClicked(event){
         const cell = event.target;
-        if (this.gameState == 'running' && cell.classList.contains('cell') && !this.isEmptyOrSameSymbol(cell)){ // means empty
+        if (this.gameState == 'running' && cell.classList.contains('cell') && !this.isSomethingOrSameSymbol(cell)){ 
             this.advanceGame(cell);
         }
     }
 
     advanceGame(updatedCell){
         const lastPosition = {x: parseInt(updatedCell.dataset.x, 10), y: parseInt(updatedCell.dataset.y, 10)};
-        updatedCell.innerHTML = this.currentTurnBar.innerHTML;
         const enoughRounds = this.round >= this.playerCount * (this.consecutiveMarksToWin - 1);
+        updatedCell.innerHTML = this.currentTurnBar.innerHTML;
         if (enoughRounds && this.checkWin(this.currentTurnBar.innerHTML, lastPosition)){
-            this.gameState = `${this.currentTurnBar} WINS :>`;
-        }
-        else if (this.round >= this.width * this.height) {
-            this.gameState = 'Draw :/';
+            this.endGame(`${this.currentTurnBar.innerHTML} WINS`);
+            return;
         }
         this.round++;
         this.currentTurnBar.innerHTML = this.players[this.round % this.playerCount];
+        if (this.round >= this.width * this.height) {
+            this.endGame('DRAW');
+        }
+    }
 
+    endGame(message){
+        this.currentTurnBar.innerHTML = message;
+        this.gameState = message;
+        this.boardElement.classList.add('stop-hover');
     }
 
     checkWin(lastPlayerSymbol, lastPosition){
@@ -126,7 +138,7 @@ class Game {
         return this.grid[position.y][position.x];
     }
 
-    isEmptyOrSameSymbol(cell){
+    isSomethingOrSameSymbol(cell){
         return cell.innerHTML || cell.innerHTML == (this.players[this.round % this.playerCount]);
     }
 
@@ -135,5 +147,41 @@ class Game {
     }
 }
  
-const game = new Game(11, 11, 5);
+let game = null;
 
+const widthInput = document.querySelector('#width-input');
+const heightInput = document.querySelector('#height-input');
+const conInput = document.querySelector('#con-input');
+const playerInput = document.querySelector('#player-input');
+const setButton = document.querySelector('#set-button');
+
+setButton.addEventListener('click', setGame);
+
+function setGame(event){
+    const width = parseInt(widthInput.value, 10);
+    const height = parseInt(heightInput.value, 10);
+    const con = parseInt(conInput.value, 10);
+
+    let inputString = playerInput.value.trim().split(/\s+/);
+
+    
+    
+    if (!(isNaN(width) || isNaN(height) || isNaN(con) || width < 3 || height < 3 || con < 3 || inputString.length < 2 || checkInvalidPlayers(inputString))){
+        if (game != null){
+            game.boardWipe();
+
+        }
+        game = new Game(height, width, con, inputString);
+    }
+
+}
+
+
+function checkInvalidPlayers(string){
+    for (let i = 0; i < string.length; i++){
+        if (string[i].length != 1){
+            return true;
+        }
+    }
+    return false;
+}

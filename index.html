@@ -7,7 +7,22 @@
         <link rel="stylesheet" href="./styles.css">
     </head>
     <body>
-        <h1 id="currentPlayer"></h1>
+        <div style="width: 50%; margin: auto; text-align: center;">
+            <h1>N TIC TAC TOE</h1>
+        <p>Width and height are the dimension of the board.<br>
+            Streak to win is how many symbols in a row (diagonal, vertical, horizontal) to win.<br>
+            Player input symbols seperated by white spaces ex. 'X O Y' means X go first then O then Y
+            then back X again </p>
+        </div>
+        <div class="inputs">
+            <input id="width-input" type="text" placeholder="WIDTH">
+            <input id="height-input" type="text" placeholder="HEIGHT">
+            <input id="con-input" type="text" placeholder="STREAK TO WIN">
+            <input id="player-input" type="text" placeholder="SYMBOLS TO USE">
+        </div>
+        <div class="button">
+            <button id="set-button">Set Board</button>
+        </div>
         <script src="./main.js"></script>
     </body>
 </html>
