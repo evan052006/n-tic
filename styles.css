@@ -1,5 +1,5 @@
 body {
-    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-family:sans-serif;
 }
 
 button {
@@ -33,6 +33,7 @@ input {
     display: grid;
     margin: auto;
     max-width: 80%;
+    row-gap: 0;
 }
 
 .currentTurnBar {
@@ -52,7 +53,7 @@ input {
     align-items: center;
     justify-content: center;
     background-color: lightgrey;
-    border: 0.001vw solid black;
+    border: 1px solid black;
     aspect-ratio: 1 / 1;
 }
 

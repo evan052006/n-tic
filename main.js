@@ -83,7 +83,6 @@ class Game {
     }
 
     checkWin(lastPlayerSymbol, lastPosition){
-
         let shiftFunctions = [];
         shiftFunctions[0] = (position, distance) => ({x: position.x + distance, y: position.y});
         shiftFunctions[1] = (position, distance) => ({x: position.x, y: position.y + distance});
@@ -162,9 +161,7 @@ function setGame(event){
     const height = parseInt(heightInput.value, 10);
     const con = parseInt(conInput.value, 10);
 
-    let inputString = playerInput.value.trim().split(/\s+/);
-
-    
+    let inputString = playerInput.value.trim().split(/\s+/);    
     
     if (!(isNaN(width) || isNaN(height) || isNaN(con) || width < 3 || height < 3 || con < 3 || inputString.length < 2 || checkInvalidPlayers(inputString))){
         if (game != null){
@@ -175,7 +172,6 @@ function setGame(event){
     }
 
 }
-
 
 function checkInvalidPlayers(string){
     for (let i = 0; i < string.length; i++){
